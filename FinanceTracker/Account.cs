@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace FinanceTracker;
 public class Account
@@ -85,7 +87,11 @@ public class Account
         Random rand = new Random();
         int randomNumber = rand.Next(1, 100);
         int categoryCode = (int)AccountType;
-        return categoryCode + randomNumber;
+        if (categoryCode == 0)
+        {
+            categoryCode = 9;
+        }
+        return (categoryCode * 100) + randomNumber;
     }
 
     private void SetNormalBalance()
@@ -108,6 +114,14 @@ public class Account
     }
 
     // Static methods
+
+    public static void SaveAllAccounts()
+    {
+        string filePath = "accounts.json";
+        string jsonArray = JsonSerializer.Serialize(ListOfAccounts);
+        File.AppendAllText(filePath, jsonArray);
+    }
+    
     private static List<string> GetAllAccountNames()
     {
         List<string> accountNames = new List<string>();
@@ -132,12 +146,12 @@ public class Account
 
 public enum AccountType
 {
-    Unassigned = 900,
-    Asset = 100,
-    Liability = 200,
-    Equity = 300,
-    Revenue = 400,
-    Expenditure = 500,
+    Unassigned,
+    Asset,
+    Liability,
+    Equity,
+    Revenue,
+    Expenditure,
 }
 
 public enum DrCr
