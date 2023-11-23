@@ -1,14 +1,33 @@
 using System;
+using System.Collections.Generic;
 
 namespace FinanceTracker;
 public class Account
 {
-    #region Properties
-    public int AccountID { get; set; }
-    public string AccountName { get; set; }
+    #region Static members
+    public static List<Account> ListOfAccounts = new List<Account>();
+    #endregion
 
-    private Classification _accountType;
-    public Classification AccountType
+    #region Properties
+    public int AccountID { get; private set; }
+
+    private string _accountName = string.Empty;
+    public string AccountName
+    {
+        get { return _accountName; }
+        set
+        {
+            List<string> accountNames = GetAllAccountNames();
+            if (accountNames.Contains(value))
+            {
+                throw new InvalidOperationException($"An account '{value}' already exists!");
+            }
+            _accountName = value;
+        }
+    }
+
+    private AccountType _accountType;
+    public AccountType AccountType
     {
         get { return _accountType; }
         set
@@ -18,32 +37,69 @@ public class Account
         }
     }
 
-
     public DrCr NormalBalance { get; private set; }
-
     #endregion
 
     #region Contructors
     public Account()
     {
-        AccountType = Classification.Unassigned;
-        SetNormalBalance();
+        AccountType = AccountType.Unassigned;
+        InitializeAccount();
     }
 
+    public Account(string name, AccountType accountType)
+    {
+        AccountName = name;
+        AccountType = accountType;
+        InitializeAccount();
+    }
     #endregion
 
     #region Methods
+    // Instance methods
+    private void InitializeAccount()
+    {
+        AssignAccountNumber();
+        SetNormalBalance();
+        ListOfAccounts.Add(this);
+    }
+
+    private void AssignAccountNumber()
+    {
+        List<int> accountNumbers = GetAllAccountNumbers();
+
+        int number = GenerateRandomNumber();
+        AccountID = number;
+        if (accountNumbers.Contains(number))
+        {
+            AssignAccountNumber();
+        }
+        else
+        {
+            AccountID = number;
+        }
+    }
+
+    private int GenerateRandomNumber()
+    {
+        int categoryCode = (int)AccountType;
+        Random rand = new Random();
+        int randomNumber = rand.Next(1, 100);
+        int sum = categoryCode + randomNumber;
+        return sum;
+    }
+
     private void SetNormalBalance()
     {
         switch (AccountType)
         {
-            case Classification.Asset:
-            case Classification.Expenditure:
+            case AccountType.Asset:
+            case AccountType.Expenditure:
                 NormalBalance = DrCr.Debit;
                 break;
-            case Classification.Liability:
-            case Classification.Equity:
-            case Classification.Revenue:
+            case AccountType.Liability:
+            case AccountType.Equity:
+            case AccountType.Revenue:
                 NormalBalance = DrCr.Credit;
                 break;
             default:
@@ -51,18 +107,38 @@ public class Account
                 break;
         }
     }
-    #endregion
 
+    // Static methods
+    private static List<string> GetAllAccountNames()
+    {
+        List<string> accountNames = new List<string>();
+        foreach (var account in ListOfAccounts)
+        {
+            accountNames.Add(account.AccountName);
+        }
+        return accountNames;
+    }
+
+    private static List<int> GetAllAccountNumbers()
+    {
+        List<int> accountNumbers = new List<int>();
+        foreach (var account in ListOfAccounts)
+        {
+            accountNumbers.Add(account.AccountID);
+        }
+        return accountNumbers;
+    }
+    #endregion
 }
 
-public enum Classification
+public enum AccountType
 {
-    Unassigned,
-    Asset,
-    Liability,
-    Equity,
-    Revenue,
-    Expenditure,
+    Unassigned = 900,
+    Asset = 100,
+    Liability = 200,
+    Equity = 300,
+    Revenue = 400,
+    Expenditure = 500,
 }
 
 public enum DrCr
