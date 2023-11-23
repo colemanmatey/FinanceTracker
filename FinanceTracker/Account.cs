@@ -82,11 +82,10 @@ public class Account
 
     private int GenerateRandomNumber()
     {
-        int categoryCode = (int)AccountType;
         Random rand = new Random();
         int randomNumber = rand.Next(1, 100);
-        int sum = categoryCode + randomNumber;
-        return sum;
+        int categoryCode = (int)AccountType;
+        return categoryCode + randomNumber;
     }
 
     private void SetNormalBalance()
