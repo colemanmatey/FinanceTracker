@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace FinanceTracker;
 
@@ -31,15 +33,25 @@ public class AccountManager
         return accounts;
     }
 
-    public void SerializeToJson(string filePath)
+    public void SaveAccounts()
     {
         // Serialize accounts to JSON and save to file
-        // To-Do
+        string jsonData = JsonSerializer.Serialize(accounts, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(FileName, jsonData);
     }
 
-    public void DeserializeFromJson(string filePath)
+    public List<Account> LoadAccounts()
     {
         // Deserialize accounts from JSON file
-        // To-Do
+        if (File.Exists(FileName))
+        {
+            string json = File.ReadAllText(FileName);
+            List<Account>? data = JsonSerializer.Deserialize<List<Account>>(json);
+            return data; // To-Do Resolve Possible null reference return 
+        }
+        else
+        {
+            return new List<Account>();
+        }
     }
 }
