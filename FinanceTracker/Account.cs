@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 
 namespace FinanceTracker;
+
 public class Account
 {
-    #region Static members
-    public static List<Account> ListOfAccounts = new List<Account>();
-    #endregion
+    private static HashSet<int> usedAccountIDs = new HashSet<int>();
+    private static HashSet<string> usedAccountNames = new HashSet<string>();
 
-    #region Properties
     public int AccountID { get; private set; }
 
     private string _accountName = string.Empty;
@@ -19,12 +16,17 @@ public class Account
         get { return _accountName; }
         set
         {
-            List<string> accountNames = GetAllAccountNames();
-            if (accountNames.Contains(value))
+            if (!usedAccountNames.Contains(value))
             {
-                throw new InvalidOperationException($"An account '{value}' already exists!");
+                // If the accountID is unique, set it and add to the set of used IDs
+                _accountName = value;
+                usedAccountNames.Add(_accountName);
             }
-            _accountName = value;
+            else
+            {
+                // Handle the case where the proposed accountID is not unique
+                throw new InvalidOperationException($"An account with the name {_accountName} already exists!");
+            }
         }
     }
 
@@ -40,9 +42,7 @@ public class Account
     }
 
     public DrCr NormalBalance { get; private set; }
-    #endregion
 
-    #region Contructors
     public Account()
     {
         AccountType = AccountType.Unassigned;
@@ -55,30 +55,25 @@ public class Account
         AccountType = accountType;
         InitializeAccount();
     }
-    #endregion
-
-    #region Methods
-    // Instance methods
     private void InitializeAccount()
     {
         AssignAccountNumber();
         SetNormalBalance();
-        ListOfAccounts.Add(this);
     }
 
     private void AssignAccountNumber()
     {
-        List<int> accountNumbers = GetAllAccountNumbers();
-
         int number = GenerateRandomNumber();
         AccountID = number;
-        if (accountNumbers.Contains(number))
+
+        // If the generated number is not used, assign the number to account else generate another number
+        if (!usedAccountIDs.Contains(number))
         {
-            AssignAccountNumber();
+            AccountID = number;
         }
         else
         {
-            AccountID = number;
+            AssignAccountNumber();
         }
     }
 
@@ -112,36 +107,6 @@ public class Account
                 break;
         }
     }
-
-    // Static methods
-
-    public static void SaveAllAccounts()
-    {
-        string filePath = "accounts.json";
-        string jsonArray = JsonSerializer.Serialize(ListOfAccounts);
-        File.AppendAllText(filePath, jsonArray);
-    }
-    
-    private static List<string> GetAllAccountNames()
-    {
-        List<string> accountNames = new List<string>();
-        foreach (var account in ListOfAccounts)
-        {
-            accountNames.Add(account.AccountName);
-        }
-        return accountNames;
-    }
-
-    private static List<int> GetAllAccountNumbers()
-    {
-        List<int> accountNumbers = new List<int>();
-        foreach (var account in ListOfAccounts)
-        {
-            accountNumbers.Add(account.AccountID);
-        }
-        return accountNumbers;
-    }
-    #endregion
 }
 
 public enum AccountType
