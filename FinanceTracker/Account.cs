@@ -37,11 +37,8 @@ public class Account
         set
         {
             _accountType = value;
-            SetNormalBalance();
         }
     }
-
-    public DrCr NormalBalance { get; private set; }
 
     public Account()
     {
@@ -58,7 +55,6 @@ public class Account
     private void InitializeAccount()
     {
         AssignAccountNumber();
-        SetNormalBalance();
     }
 
     private void AssignAccountNumber()
@@ -89,23 +85,25 @@ public class Account
         return (categoryCode * 100) + randomNumber;
     }
 
-    private void SetNormalBalance()
+    private DrCr GetNormalBalance()
     {
+        DrCr normalBalance;
         switch (AccountType)
         {
             case AccountType.Asset:
             case AccountType.Expenditure:
-                NormalBalance = DrCr.Debit;
+                normalBalance = DrCr.Debit;
                 break;
             case AccountType.Liability:
             case AccountType.Equity:
             case AccountType.Revenue:
-                NormalBalance = DrCr.Credit;
+                normalBalance = DrCr.Credit;
                 break;
             default:
-                NormalBalance = DrCr.Credit;
+                normalBalance = DrCr.Credit;
                 break;
         }
+        return normalBalance;
     }
 }
 

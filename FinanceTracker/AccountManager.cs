@@ -18,40 +18,42 @@ public class AccountManager
 
     public void AddAccount(Account account)
     {
-        // Add account to the list
+        // Get list of all accounts from file
+        accounts = LoadAccounts();
+
+        // Add new account to the list
         accounts.Add(account);
+
+        // Save the new list back to the file
+        SaveAccounts(accounts);
+
     }
     public void RemoveAccount(Account account)
     {
-        // Add account to the list
+        // Get list of all accounts from file
+        accounts = LoadAccounts();
+
+        // Remove new account from the list
         accounts.Remove(account);
+
+        // Save the new list back to the file
+        SaveAccounts(accounts);
+
     }
 
-    public List<Account> GetAllAccounts()
-    {
-        // Retrieve the list of all accounts
-        return accounts;
-    }
-
-    public void SaveAccounts()
+    private void SaveAccounts(List<Account> accounts)
     {
         // Serialize accounts to JSON and save to file
-        string jsonData = JsonSerializer.Serialize(accounts, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(FileName, jsonData);
+        string json = JsonSerializer.Serialize(accounts);
+        File.WriteAllText(FileName, json);
     }
 
-    public List<Account> LoadAccounts()
+    private List<Account> LoadAccounts()
     {
         // Deserialize accounts from JSON file
-        if (File.Exists(FileName))
-        {
-            string json = File.ReadAllText(FileName);
-            List<Account>? data = JsonSerializer.Deserialize<List<Account>>(json);
-            return data; // To-Do Resolve Possible null reference return 
-        }
-        else
-        {
-            return new List<Account>();
-        }
+        // if (File.Exists(FileName)){
+
+        // }
+        return new List<Account>();
     }
 }
