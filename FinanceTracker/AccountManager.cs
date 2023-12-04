@@ -29,16 +29,26 @@ public class AccountManager
     public void SaveAccounts()
     {
         // Serialize accounts to JSON and save to file
-        string json = JsonSerializer.Serialize(accounts);
+        JsonSerializerOptions options = new JsonSerializerOptions()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        };
+        string json = JsonSerializer.Serialize(accounts, options);
         File.WriteAllText(FileName, json);
     }
 
     public List<Account> LoadAccounts()
     {
         // Deserialize accounts from JSON file
-        // if (File.Exists(FileName)){
-
-        // }
-        return new List<Account>();
+        if (File.Exists(FileName))
+        {
+            string data = File.ReadAllText(FileName);
+            return JsonSerializer.Deserialize<List<Account>>(data) ?? new List<Account>();
+        }
+        else
+        {
+            return new List<Account>();
+        }
     }
 }
